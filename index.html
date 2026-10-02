@@ -104,12 +104,15 @@ button.chip { cursor: pointer }
 .board tr.off th { color: var(--leaf) }
 .off-label { display: block; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--leaf); margin-bottom: 6px }
 .board tr.off .chip { font-weight: 500; padding: 2px 8px; font-size: .84rem }
+.board tr.pre > * { background: var(--indigo-soft) }
+.pre-text { font-size: .93rem; margin-bottom: 8px }
+.board tr.pre .chip.d { background: var(--surface) }
 .board tr.float > * { background: var(--gold-fill); color: var(--gold-ink) }
 .board tr.float .chips { align-items: center }
 .float-note { font-size: .9rem; font-weight: 500 }
 .editing .board td { cursor: pointer }
-.editing .board tr.float td { cursor: default }
-.editing.picking .board tr:not(.float) td:hover { box-shadow: inset 0 0 0 3px var(--gold) }
+.editing .board tr.float td, .editing .board tr.pre td { cursor: default }
+.editing.picking .board tr:not(.float):not(.pre) td:hover { box-shadow: inset 0 0 0 3px var(--gold) }
 .day-notes { display: flex; flex-direction: column; gap: 4px; font-size: .95rem }
 .day-notes li { padding-left: 16px; position: relative }
 .day-notes li::before { content: ""; position: absolute; left: 0; top: .6em; width: 7px; height: 7px; border-radius: 50%; background: var(--gold) }
@@ -182,11 +185,11 @@ button.chip { cursor: pointer }
     ['2:00 – 3:00', 'Tea ceremony at 2:00'],
     ['3:00 – 4:00', 'Last hour']
   ];
-  var OFF_LABELS = ['Soran: check, then stage 11:40', 'Free lunch', 'Free lunch', 'Break', 'Break'];
+  var OFF_LABELS = ['Free time, stage call 11:20', 'Free lunch', 'Free lunch', 'Break', 'Break'];
   var RAIL = [
     ['9:00 am', 'Meet at UNO', 'In front of the UV Clubhouse. We carpool to the garden.', ''],
     ['10:00 am', 'Arrive and set up', 'Get all five booths ready.', ''],
-    ['After setup', 'Soran formation check', 'All dancers, a quick run-through of positions.', ''],
+    ['Before 10:30', 'Soran formation check', 'All dancers, right after setup and before the booths open.', ''],
     ['11:40 am', 'Soran Bushi on stage', 'Both days. Dancers wear all black.', 'hot'],
     ['12:00 and 1:00', 'Free lunch, two waves', 'The festival gives food to everyone we registered.', ''],
     ['2:00 pm', 'Tea ceremony', 'Until 2:15 pm, run by our tea team.', ''],
@@ -263,8 +266,14 @@ button.chip { cursor: pointer }
     return '<article class="day" id="' + d.key + '"><div class="day-head"><h3>' + esc(d.name) + '</h3>' +
       '<p class="count">' + people(d).length + ' members · ' + d.dancers.length + ' dancers · ' + d.crew.length + ' booth crew</p></div>' +
       '<div class="scroll"><table class="board"><thead><tr><th scope="col" class="corner">Booth</th>' + head + '</tr></thead>' +
-      '<tbody>' + rows + '<tr class="off"><th scope="row">Off duty</th>' + off + '</tr>' + floatRow(d) + '</tbody></table></div>' +
+      '<tbody>' + preRow(d) + rows + '<tr class="off"><th scope="row">Break</th>' + off + '</tr>' + floatRow(d) + '</tbody></table></div>' +
       add + '<ul class="day-notes">' + notes + '</ul></article>';
+  }
+
+  function preRow(d) {
+    return '<tr class="pre"><th scope="row">Before opening</th><td colspan="' + SLOTS.length + '">' +
+      '<p class="pre-text"><strong>10:00 – 10:30.</strong> Everyone sets up the booths. As soon as setup is done, all Soran dancers run the formation check, before the booths open at 10:30.</p>' +
+      '<div class="chips">' + d.dancers.map(function (n) { return chip(d, 0, -2, n); }).join('') + '</div></td></tr>';
   }
 
   function floatRow(d) {
@@ -281,12 +290,14 @@ button.chip { cursor: pointer }
         var b = -1;
         d.grid.forEach(function (row, i) { if (row[s].indexOf(ui.who) >= 0) b = i; });
         var what = b >= 0 ? BOOTHS[b][0]
-          : (s === 0 && d.dancers.indexOf(ui.who) >= 0) ? 'Soran Bushi: check, then stage'
+          : (s === 0 && d.dancers.indexOf(ui.who) >= 0) ? (floats(d).indexOf(ui.who) >= 0 ? 'Floating, then Soran Bushi at 11:40' : 'Free time, then Soran Bushi at 11:40')
           : floats(d).indexOf(ui.who) >= 0 ? 'Floating: step in where a booth is short'
           : (s === 1 || s === 2) ? 'Off (free lunch)' : 'Off';
         return '<li class="' + (b >= 0 ? 'work' : 'rest') + '"><span class="t">' + esc(sl[0]) + '</span><strong>' + esc(what) + '</strong></li>';
       }).join('');
-      return '<div class="mine-day"><h4>' + esc(d.name) + '</h4><ol>' + items + '</ol></div>';
+      var pre = '<li class="work"><span class="t">10:00 – 10:30</span><strong>' +
+        (d.dancers.indexOf(ui.who) >= 0 ? 'Set up, then Soran formation check' : 'Set up the booths') + '</strong></li>';
+      return '<div class="mine-day"><h4>' + esc(d.name) + '</h4><ol>' + pre + items + '</ol></div>';
     }).join('');
     if (!days) return '';
     return '<div class="mine"><p class="mine-name">' + esc(ui.who) + "'s shifts</p><div class=\"mine-days\">" + days + '</div></div>';
@@ -332,7 +343,7 @@ button.chip { cursor: pointer }
       '<section><h2>The day</h2><ol class="rail">' + rail + '</ol></section>' +
       '<section><h2>Shift board</h2>' +
       '<p class="lede">Choose your name to see your own day. You stay with one booth all day, and everyone gets lunch plus one more hour off.</p>' +
-      '<div class="rules"><p class="rule"><strong>Morning</strong><span>Booth crew opens the booths. Soran dancers do the formation check, help at the booths until 11:20, then go on stage at 11:40.</span></p>' +
+      '<div class="rules"><p class="rule"><strong>Morning</strong><span>Booth crew opens the booths at 10:30. Soran dancers are free to walk around the festival until the stage call at 11:20, then dance at 11:40.</span></p>' +
       '<p class="rule lunch"><strong>Free lunch</strong><span>Booth crew eats at 12:00 while the dancers cover. Dancers eat at 1:00.</span></p>' +
       '<p class="rule"><strong>Afternoon</strong><span>Each booth team splits in two: half works 2:00 to 3:00, the other half 3:00 to 4:00.</span></p></div>' +
       finder() + mine() +
@@ -357,7 +368,7 @@ button.chip { cursor: pointer }
     if (!ui.edit) { bar.hidden = true; bar.className = ''; bar.innerHTML = ''; }
     else {
       var text = ui.sel
-        ? 'Moving ' + esc(ui.sel.name) + '. Tap a cell to move there, another name to swap, or Off duty to take them off.'
+        ? 'Moving ' + esc(ui.sel.name) + '. Tap a cell to move there, another name to swap, or the Break row to take them off.'
         : (dirty() ? 'Unsaved changes. Tap a name to pick it up.' : 'Tap a name to pick it up, then tap where it goes.');
       var btns = '';
       if (ui.sel) btns += '<button type="button" class="btn quiet" data-act="remove">Remove from this day</button>';
