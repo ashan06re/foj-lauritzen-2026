@@ -1,0 +1,509 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}[hidden]{display:none!important}</style></head><body>
+<title>FOJ Festival Game Plan</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap">
+<style id="css">
+/* Layout: indigo masthead with the meet-up call, then full-width bands: day rail, shift boards (booth x time grid of name chips that organizers move by tap), cars, checklists. */
+:root {
+  --bg: #F1F3F9; --surface: #FFFFFF; --ink: #161F45; --muted: #586184; --line: #D3D9EA;
+  --indigo: #2843A0; --indigo-soft: #E2E8FB; --gold: #B97A00; --gold-fill: #FFE9B0; --gold-ink: #4A3200;
+  --leaf: #23694B; --leaf-soft: #DCF0E5; --mast-bg: #1A2760; --mast-fg: #F4F6FF; --mast-dim: #B9C3EE;
+  --display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Arial Rounded MT Bold", system-ui, sans-serif;
+  --body: "Figtree", "Helvetica Neue", Arial, system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0E1326; --surface: #171F40; --ink: #EDF0FC; --muted: #A2ABCB; --line: #2D3964;
+  --indigo: #9DB2FF; --indigo-soft: #26336A; --gold: #F3C04E; --gold-fill: #4B3A0E; --gold-ink: #FFE9B0;
+  --leaf: #7FD3AA; --leaf-soft: #173B2C; --mast-bg: #1A2760; --mast-fg: #F4F6FF; --mast-dim: #B9C3EE;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0E1326; --surface: #171F40; --ink: #EDF0FC; --muted: #A2ABCB; --line: #2D3964;
+  --indigo: #9DB2FF; --indigo-soft: #26336A; --gold: #F3C04E; --gold-fill: #4B3A0E; --gold-ink: #FFE9B0;
+  --leaf: #7FD3AA; --leaf-soft: #173B2C; --mast-bg: #1A2760; --mast-fg: #F4F6FF; --mast-dim: #B9C3EE;
+  color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--ink); font: 400 16px/1.5 var(--body); margin: 0 }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: clamp(16px, 3vw, 32px); padding-block: 24px 120px; display: flex; flex-direction: column; gap: 40px }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.15 }
+h2 { font-size: 1.6rem; font-weight: 900 }
+h3 { font-size: 1.2rem; font-weight: 700 }
+h4 { font-size: 1rem; font-weight: 700 }
+p { margin: 0 }
+ul, ol { margin: 0; padding: 0; list-style: none }
+section { display: flex; flex-direction: column; gap: 16px }
+.lede { color: var(--muted); max-width: 65ch }
+
+.mast { background-color: var(--mast-bg); color: var(--mast-fg); border-radius: 20px; padding: clamp(20px, 4vw, 40px); display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: end;
+  background-image: radial-gradient(circle at 100% 150%, transparent 24%, rgba(255,255,255,.07) 25%, rgba(255,255,255,.07) 28%, transparent 29%, transparent 36%, rgba(255,255,255,.07) 37%, rgba(255,255,255,.07) 40%, transparent 41%),
+                    radial-gradient(circle at 0 150%, transparent 24%, rgba(255,255,255,.07) 25%, rgba(255,255,255,.07) 28%, transparent 29%, transparent 36%, rgba(255,255,255,.07) 37%, rgba(255,255,255,.07) 40%, transparent 41%),
+                    radial-gradient(circle at 50% 100%, rgba(255,255,255,.05) 10%, transparent 11%, transparent 23%, rgba(255,255,255,.05) 24%, rgba(255,255,255,.05) 30%, transparent 31%);
+  background-size: 56px 28px }
+.eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--mast-dim) }
+.mast h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 900; margin-block: 8px 12px }
+.mast .where { color: var(--mast-dim); font-size: 1.05rem }
+.meet { background: var(--gold-fill); color: var(--gold-ink); border-radius: 16px; padding: 20px 24px; min-width: 0 }
+.meet .big { font-family: var(--display); font-weight: 900; font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1.1; display: block }
+.meet .label { font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase }
+.meet p { margin-top: 6px; font-weight: 500 }
+
+.rail { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px }
+.stop { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 4px; min-width: 0 }
+.stop-time { font-family: var(--display); font-weight: 900; font-size: 1.1rem; color: var(--indigo); font-variant-numeric: tabular-nums }
+.stop-title { font-weight: 700; line-height: 1.25 }
+.stop-note { font-size: .88rem; color: var(--muted); line-height: 1.35 }
+.stop.hot { background: var(--gold-fill); border-color: var(--gold) }
+.stop.hot .stop-time, .stop.hot .stop-title, .stop.hot .stop-note { color: var(--gold-ink) }
+
+.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px }
+.rule { border-left: 5px solid var(--indigo); background: var(--indigo-soft); border-radius: 0 12px 12px 0; padding: 12px 16px; min-width: 0 }
+.rule strong { display: block; font-family: var(--display); font-size: 1.05rem }
+.rule span { font-size: .93rem }
+.rule.lunch { border-color: var(--leaf); background: var(--leaf-soft) }
+
+.tools { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between }
+.finder { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px }
+.finder label { font-family: var(--display); font-weight: 700 }
+select, input[type="text"] { font: inherit; font-size: 16px; color: var(--ink); background: var(--surface); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px 12px; max-width: 100% }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; font-size: .9rem; color: var(--muted) }
+.legend span { display: inline-flex; align-items: center; gap: 8px }
+.btn { font: inherit; font-weight: 700; border: 0; border-radius: 999px; padding: 10px 18px; cursor: pointer; background: var(--indigo); color: var(--surface) }
+.btn.quiet { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line) }
+.btn.gold { background: var(--gold-fill); color: var(--gold-ink); box-shadow: inset 0 0 0 1.5px var(--gold) }
+.btn[disabled] { opacity: .55; cursor: default }
+.chip:focus-visible, .btn:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--indigo); outline-offset: 2px }
+
+.mine { background: var(--surface); border: 2px solid var(--gold); border-radius: 16px; padding: 16px 20px; display: flex; flex-direction: column; gap: 12px }
+.mine-name { font-family: var(--display); font-weight: 900; font-size: 1.25rem }
+.mine-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 32px }
+.mine-day { display: flex; flex-direction: column; gap: 8px; min-width: 0 }
+.mine-day ol { display: flex; flex-direction: column; gap: 6px }
+.mine-day li { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 12px; align-items: baseline; padding: 6px 10px; border-radius: 10px; background: var(--indigo-soft) }
+.mine-day li.rest { background: var(--leaf-soft) }
+.mine-day .t { font-variant-numeric: tabular-nums; font-size: .9rem; color: var(--muted) }
+
+.day { display: flex; flex-direction: column; gap: 12px }
+.day-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 16px }
+.count { color: var(--muted); font-size: .93rem }
+.scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; background: var(--surface) }
+.board { border-collapse: collapse; width: 100%; min-width: 860px; table-layout: fixed }
+.board th, .board td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); padding: 10px; vertical-align: top; text-align: left }
+.board tr > :last-child { border-right: 0 }
+.board tbody tr:last-child > * { border-bottom: 0 }
+.board thead th { background: var(--indigo-soft) }
+.board .corner { width: 150px; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); vertical-align: bottom }
+.slot-time { display: block; font-family: var(--display); font-weight: 900; font-size: 1.05rem; font-variant-numeric: tabular-nums }
+.slot-note { display: block; font-size: .8rem; font-weight: 500; color: var(--muted) }
+.board tbody th { font-family: var(--display); font-weight: 700; font-size: .98rem; line-height: 1.25 }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 30px }
+.chip { display: inline-block; border: 0; font-family: inherit; padding: 4px 10px; border-radius: 999px; font-size: .9rem; font-weight: 600; line-height: 1.3; white-space: nowrap }
+button.chip { cursor: pointer }
+.chip.d { background: var(--indigo-soft); color: var(--indigo) }
+.chip.c { background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line) }
+.chip.me { background: var(--gold-fill); color: var(--gold-ink); box-shadow: inset 0 0 0 2px var(--gold) }
+.chip.sel { background: var(--gold); color: var(--surface); box-shadow: 0 0 0 3px var(--gold-fill) }
+.board tr.off > * { background: var(--leaf-soft) }
+.board tr.off th { color: var(--leaf) }
+.off-label { display: block; font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--leaf); margin-bottom: 6px }
+.board tr.off .chip { font-weight: 500; padding: 2px 8px; font-size: .84rem }
+.board tr.float > * { background: var(--gold-fill); color: var(--gold-ink) }
+.board tr.float .chips { align-items: center }
+.float-note { font-size: .9rem; font-weight: 500 }
+.editing .board td { cursor: pointer }
+.editing .board tr.float td { cursor: default }
+.editing.picking .board tr:not(.float) td:hover { box-shadow: inset 0 0 0 3px var(--gold) }
+.day-notes { display: flex; flex-direction: column; gap: 4px; font-size: .95rem }
+.day-notes li { padding-left: 16px; position: relative }
+.day-notes li::before { content: ""; position: absolute; left: 0; top: .6em; width: 7px; height: 7px; border-radius: 50%; background: var(--gold) }
+.add { display: flex; flex-wrap: wrap; gap: 8px; align-items: center }
+.add label { font-weight: 700 }
+
+.bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 5; background: var(--mast-bg); color: var(--mast-fg); padding: 12px clamp(16px, 3vw, 32px); padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; justify-content: space-between }
+.bar p { font-weight: 600; min-width: 0 }
+.bar-btns { display: flex; flex-wrap: wrap; gap: 8px }
+.toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 6; background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 12px; font-weight: 600; max-width: calc(100% - 32px); text-align: center }
+
+.booths { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px }
+.booth { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 6px; min-width: 0 }
+.booth strong { font-family: var(--display); line-height: 1.25 }
+.booth span { font-size: .9rem; color: var(--muted); line-height: 1.4 }
+
+.car-days { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px }
+.car-day { display: flex; flex-direction: column; gap: 8px; min-width: 0 }
+.cars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; align-items: start }
+.car { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; min-width: 0 }
+.car-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 6px }
+.car strong { font-family: var(--display) }
+.seats { display: inline-flex; align-items: center; gap: 3px }
+.pip { width: 9px; height: 9px; border-radius: 50%; background: var(--indigo) }
+.seat-num { font-size: .82rem; color: var(--muted); margin-left: 6px; font-variant-numeric: tabular-nums }
+.car-note { font-size: .86rem; color: var(--muted); margin-top: 4px }
+.car.early { background: var(--gold-fill); border-color: var(--gold) }
+.car.early strong, .car.early .car-note, .car.early .seat-num { color: var(--gold-ink) }
+.car.early .pip { background: var(--gold) }
+
+.pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 12px; min-width: 0 }
+.panel li { padding-left: 16px; position: relative }
+.panel li + li { margin-top: 8px }
+.panel li::before { content: ""; position: absolute; left: 0; top: .6em; width: 7px; height: 7px; border-radius: 50%; background: var(--indigo) }
+.black { background: var(--mast-bg); color: var(--mast-fg); border-radius: 12px; padding: 12px 16px; font-weight: 600 }
+
+@media (max-width: 900px) {
+  .mast { grid-template-columns: 1fr }
+  .rail { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+  .rules, .car-days, .pair, .mine-days { grid-template-columns: 1fr }
+  .booths { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+}
+@media (max-width: 460px) { .rail, .booths, .cars { grid-template-columns: 1fr } }
+@media print {
+  .wrap { max-width: none; gap: 28px; padding-block: 0 }
+  .day, .car-day, .panel, .mast, .rail, .rules { break-inside: avoid }
+  .scroll { overflow: visible }
+  .bar, .toast, .tools .btn, .add { display: none }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact }
+}
+</style>
+<main class="wrap" id="app"></main>
+<script type="application/json" id="state">{"v":2,"days":[{"key":"sat","name":"Saturday, Oct 3","float":["Asuka","Chieri"],"dancers":["Asuka","Chieri","Ayaka","Megumi","Sofia","Yutaro","Aoi","Ayane","Mana","Miina","Tom"],"crew":["Teek","Hikaru","Myotha","Ruka","Koharu","Takehiro","Penelope","Yukino"],"grid":[[["Hikaru","Yukino"],["Ayane","Mana"],["Koharu","Ruka"],["Hikaru","Miina","Yukino"],["Yukino","Mana","Koharu"]],[["Takehiro","Teek"],["Yutaro","Sofia"],["Hikaru","Penelope"],["Teek","Megumi","Takehiro"],["Takehiro","Yutaro","Teek"]],[["Koharu","Penelope"],["Tom","Miina"],["Yukino","Teek"],["Koharu","Ayaka","Tom"],["Ruka","Tom","Miina"]],[["Ruka"],["Megumi","Aoi"],["Myotha"],["Penelope","Aoi","Ruka"],["Ayane","Penelope","Hikaru"]],[["Myotha"],["Ayaka"],["Takehiro"],["Sofia","Myotha","Mana"],["Myotha","Sofia","Ayaka"]]],"notes":["Megumi leaves at 3:30 pm. If you need to leave early, ride back with her."],"cars":[["Yutaro",5,""],["Ayane",6,""],["Megumi",5,"Leaves 3:30 pm. Early leavers ride back here."],["Reiko-sensei",5,""],["Sean",5,"To be confirmed"]]},{"key":"sun","name":"Sunday, Oct 4","float":["Asuka","Chieri"],"dancers":["Asuka","Chieri","Ayaka","Luke","Megumi","Sofia","Yutaro","Aoi","Ayane","Mana","Miina","Tom"],"crew":["Stacee","Ken","Ruka","Koharu","Takehiro","Penelope","Yukino"],"grid":[[["Yukino","Koharu"],["Ayane","Mana"],["Ruka","Takehiro"],["Yukino","Ayaka","Ruka"],["Ruka","Mana","Yukino"]],[["Takehiro","Ken"],["Yutaro","Luke"],["Koharu","Stacee"],["Ken","Luke","Takehiro"],["Takehiro","Yutaro","Ken"]],[["Ruka"],["Tom","Miina"],["Yukino"],["Koharu","Megumi","Tom"],["Tom","Miina","Koharu"]],[["Stacee"],["Megumi","Aoi"],["Penelope"],["Stacee","Aoi","Penelope"],["Penelope","Ayane","Stacee"]],[["Penelope"],["Ayaka","Sofia"],["Ken"],["Sofia","Mana","Miina"],["Megumi","Sofia","Ayaka"]]],"notes":[],"cars":[["Yutaro",5,""],["Ayane",6,""],["Megumi",5,""],["Luke",5,""],["Reiko-sensei",5,""],["Sean",5,"To be confirmed"]]}]}</script>
+<script id="appjs">
+(function () {
+  'use strict';
+
+  var BOOTHS = [
+    ['Calligraphy', "Write each visitor's name in Japanese: hiragana, katakana or kanji."],
+    ['Yo-yo fishing', 'The classic Japanese festival game.'],
+    ['Chopsticks and ohajiki', 'Teach visitors how to use chopsticks and play ohajiki.'],
+    ['Kendama and spinning tops', 'Show the trick first, then let visitors try.'],
+    ['Origami', 'Instruction sheets for every model are at the booth.']
+  ];
+  var SLOTS = [
+    ['10:30 – 12:00', 'Booths open'],
+    ['12:00 – 1:00', 'Lunch wave 1'],
+    ['1:00 – 2:00', 'Lunch wave 2'],
+    ['2:00 – 3:00', 'Tea ceremony at 2:00'],
+    ['3:00 – 4:00', 'Last hour']
+  ];
+  var OFF_LABELS = ['Soran: check, then stage 11:40', 'Free lunch', 'Free lunch', 'Break', 'Break'];
+  var RAIL = [
+    ['9:00 am', 'Meet at UNO', 'In front of the UV Clubhouse. We carpool to the garden.', ''],
+    ['10:00 am', 'Arrive and set up', 'Get all five booths ready.', ''],
+    ['After setup', 'Soran formation check', 'All dancers, a quick run-through of positions.', ''],
+    ['11:40 am', 'Soran Bushi on stage', 'Both days. Dancers wear all black.', 'hot'],
+    ['12:00 and 1:00', 'Free lunch, two waves', 'The festival gives food to everyone we registered.', ''],
+    ['2:00 pm', 'Tea ceremony', 'Until 2:15 pm, run by our tea team.', ''],
+    ['4:00 pm', 'Festival ends', 'Clean up, then carpool back to UNO.', '']
+  ];
+  var SKELETON = '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>';
+  var FONT_LINK = '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Zen+Maru+Gothic:wght@500;700;900&display=swap">';
+  var READ_ONLY = ['not_writer', 'not_granted', 'consent_required', 'capability_disabled', 'capability_removed', 'not_declared'];
+
+  var app = document.getElementById('app');
+  var state = JSON.parse(document.getElementById('state').textContent);
+  var saved = JSON.stringify(state);
+  var artifactNs = null;
+  var ui = { can: false, edit: false, sel: null, who: '', saving: false, msg: '' };
+  var bar = document.createElement('div');
+  var toast = document.createElement('div');
+  document.body.appendChild(bar);
+  document.body.appendChild(toast);
+
+  try { ui.who = localStorage.getItem('foj-who') || ''; } catch (e) {}
+  try {
+    if (sessionStorage.getItem('foj-saved')) {
+      sessionStorage.removeItem('foj-saved');
+      ui.msg = 'Saved. Everyone now sees this version.';
+    }
+  } catch (e) {}
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function dayOf(key) { return state.days.filter(function (d) { return d.key === key; })[0]; }
+  function people(d) { return d.dancers.concat(d.crew); }
+  function onDuty(d, s) {
+    var names = [];
+    d.grid.forEach(function (row) { row[s].forEach(function (n) { names.push(n); }); });
+    return names;
+  }
+  function floats(d) { return d.float || []; }
+  function dirty() { return JSON.stringify(state) !== saved; }
+
+  function chip(d, s, b, name) {
+    var cls = 'chip ' + (d.dancers.indexOf(name) >= 0 ? 'd' : 'c');
+    var sel = ui.sel;
+    if (sel && sel.day === d.key && sel.slot === s && sel.booth === b && sel.name === name) cls += ' sel';
+    else if (!ui.edit && ui.who === name) cls += ' me';
+    return '<button type="button" class="' + cls + '" data-day="' + d.key + '" data-slot="' + s + '" data-booth="' + b + '" data-name="' + esc(name) + '">' + esc(name) + '</button>';
+  }
+
+  function board(d) {
+    var head = SLOTS.map(function (sl) {
+      return '<th scope="col"><span class="slot-time">' + esc(sl[0]) + '</span><span class="slot-note">' + esc(sl[1]) + '</span></th>';
+    }).join('');
+    var rows = BOOTHS.map(function (booth, b) {
+      var tds = SLOTS.map(function (sl, s) {
+        return '<td data-day="' + d.key + '" data-slot="' + s + '" data-booth="' + b + '"><div class="chips">' +
+          d.grid[b][s].map(function (n) { return chip(d, s, b, n); }).join('') + '</div></td>';
+      }).join('');
+      return '<tr><th scope="row">' + esc(booth[0]) + '</th>' + tds + '</tr>';
+    }).join('');
+    var off = SLOTS.map(function (sl, s) {
+      var on = onDuty(d, s);
+      var rest = people(d).filter(function (n) { return on.indexOf(n) < 0 && floats(d).indexOf(n) < 0; });
+      return '<td data-day="' + d.key + '" data-slot="' + s + '" data-booth="-1"><span class="off-label">' + esc(OFF_LABELS[s]) + '</span><div class="chips">' +
+        rest.map(function (n) { return chip(d, s, -1, n); }).join('') + '</div></td>';
+    }).join('');
+    var notes = d.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('');
+    var add = !ui.edit ? '' :
+      '<form class="add" data-day="' + d.key + '"><label for="add-' + d.key + '">Add a person</label>' +
+      '<input type="text" id="add-' + d.key + '" maxlength="24" placeholder="Name" autocomplete="off">' +
+      '<select id="role-' + d.key + '" aria-label="Role"><option value="crew">Booth crew</option><option value="dancers">Soran dancer</option></select>' +
+      '<button type="submit" class="btn quiet">Add</button></form>';
+    return '<article class="day" id="' + d.key + '"><div class="day-head"><h3>' + esc(d.name) + '</h3>' +
+      '<p class="count">' + people(d).length + ' members · ' + d.dancers.length + ' dancers · ' + d.crew.length + ' booth crew</p></div>' +
+      '<div class="scroll"><table class="board"><thead><tr><th scope="col" class="corner">Booth</th>' + head + '</tr></thead>' +
+      '<tbody>' + rows + '<tr class="off"><th scope="row">Off duty</th>' + off + '</tr>' + floatRow(d) + '</tbody></table></div>' +
+      add + '<ul class="day-notes">' + notes + '</ul></article>';
+  }
+
+  function floatRow(d) {
+    if (!floats(d).length) return '';
+    return '<tr class="float"><th scope="row">Floaters</th><td colspan="' + SLOTS.length + '"><div class="chips">' +
+      floats(d).map(function (n) { return chip(d, 0, -2, n); }).join('') +
+      '<span class="float-note">All day. They watch the whole floor and step in wherever a booth is short.</span></div></td></tr>';
+  }
+
+  function mine() {
+    if (!ui.who || ui.edit) return '';
+    var days = state.days.filter(function (d) { return people(d).indexOf(ui.who) >= 0; }).map(function (d) {
+      var items = SLOTS.map(function (sl, s) {
+        var b = -1;
+        d.grid.forEach(function (row, i) { if (row[s].indexOf(ui.who) >= 0) b = i; });
+        var what = b >= 0 ? BOOTHS[b][0]
+          : (s === 0 && d.dancers.indexOf(ui.who) >= 0) ? 'Soran Bushi: check, then stage'
+          : floats(d).indexOf(ui.who) >= 0 ? 'Floating: step in where a booth is short'
+          : (s === 1 || s === 2) ? 'Off (free lunch)' : 'Off';
+        return '<li class="' + (b >= 0 ? 'work' : 'rest') + '"><span class="t">' + esc(sl[0]) + '</span><strong>' + esc(what) + '</strong></li>';
+      }).join('');
+      return '<div class="mine-day"><h4>' + esc(d.name) + '</h4><ol>' + items + '</ol></div>';
+    }).join('');
+    if (!days) return '';
+    return '<div class="mine"><p class="mine-name">' + esc(ui.who) + "'s shifts</p><div class=\"mine-days\">" + days + '</div></div>';
+  }
+
+  function finder() {
+    var names = [];
+    state.days.forEach(function (d) { people(d).forEach(function (n) { if (names.indexOf(n) < 0) names.push(n); }); });
+    names.sort(function (a, b) { return a.localeCompare(b); });
+    var opts = '<option value="">Choose your name</option>' + names.map(function (n) {
+      return '<option value="' + esc(n) + '"' + (n === ui.who ? ' selected' : '') + '>' + esc(n) + '</option>';
+    }).join('');
+    var edit = ui.can && !ui.edit ? '<button type="button" class="btn" data-act="edit">Edit shifts</button>' : '';
+    return '<div class="tools"><div class="finder"><label for="who">Find my shifts</label><select id="who">' + opts + '</select></div>' + edit + '</div>';
+  }
+
+  function cars(d) {
+    var total = 0;
+    var cards = d.cars.map(function (c) {
+      total += c[1];
+      var pips = '';
+      for (var i = 0; i < c[1]; i++) pips += '<span class="pip"></span>';
+      return '<li class="car' + (c[2].indexOf('Leaves') === 0 ? ' early' : '') + '"><div class="car-top"><strong>' + esc(c[0]) + '</strong>' +
+        '<span class="seats" aria-label="' + c[1] + ' seats">' + pips + '<span class="seat-num">' + c[1] + ' seats</span></span></div>' +
+        (c[2] ? '<p class="car-note">' + esc(c[2]) + '</p>' : '') + '</li>';
+    }).join('');
+    return '<div class="car-day"><h3>' + esc(d.name) + '</h3><p class="count">' + d.cars.length + ' cars · ' + total + ' seats</p><ul class="cars">' + cards + '</ul></div>';
+  }
+
+  function render() {
+    var rail = RAIL.map(function (r) {
+      return '<li class="stop ' + r[3] + '"><span class="stop-time">' + esc(r[0]) + '</span><strong class="stop-title">' + esc(r[1]) + '</strong><span class="stop-note">' + esc(r[2]) + '</span></li>';
+    }).join('');
+    var booths = BOOTHS.map(function (b) {
+      return '<li class="booth"><strong>' + esc(b[0]) + '</strong><span>' + esc(b[1]) + '</span></li>';
+    }).join('');
+    app.className = 'wrap' + (ui.edit ? ' editing' : '') + (ui.sel ? ' picking' : '');
+    app.innerHTML =
+      '<header class="mast"><div><p class="eyebrow">Friends of Japan · Game plan</p><h1>Japanese Ambience Festival</h1>' +
+      '<p class="where">Sat, Oct 3 and Sun, Oct 4 · Lauritzen Gardens, 100 Bancroft St, Omaha</p></div>' +
+      '<div class="meet"><span class="label">Meet</span><span class="big">9:00 am</span>' +
+      '<p>In front of the UV Clubhouse at UNO. We carpool from there and finish around 4:00 pm.</p></div></header>' +
+      '<section><h2>The day</h2><ol class="rail">' + rail + '</ol></section>' +
+      '<section><h2>Shift board</h2>' +
+      '<p class="lede">Choose your name to see your own day. Lunch is your one-hour break, and from 2:00 every booth runs with three people.</p>' +
+      '<div class="rules"><p class="rule"><strong>Morning</strong><span>Booth crew opens the booths. Soran dancers do the formation check, help at the booths until 11:20, then go on stage at 11:40.</span></p>' +
+      '<p class="rule lunch"><strong>Free lunch</strong><span>Booth crew eats at 12:00 while the dancers cover. Dancers eat at 1:00.</span></p>' +
+      '<p class="rule"><strong>Afternoon</strong><span>All hands from 2:00 to 4:00: three people at every booth, two resting each hour.</span></p></div>' +
+      finder() + mine() +
+      '<p class="legend"><span><span class="chip d">Name</span> Soran dancer</span><span><span class="chip c">Name</span> Booth crew</span></p>' +
+      state.days.map(board).join('') + '</section>' +
+      '<section><h2>At the booths</h2><ul class="booths">' + booths + '</ul></section>' +
+      '<section><h2>Getting there</h2>' +
+      '<div class="car-days">' + state.days.map(cars).join('') + '</div></section>' +
+      '<section class="pair"><div class="panel"><h2>Wear and bring</h2>' +
+      '<p class="black">Soran dancers: all black, top and bottom. Any shoes are fine.</p>' +
+      '<ul><li>Water. Lunch is free for everyone we registered.</li><li>A jacket: we are outdoors most of the day.</li>' +
+      '<li>A charged phone: updates on the day go through LINE.</li></ul></div>' +
+      '<div class="panel"><h2>Good to know</h2><ul>' +
+      "<li><strong>Late or can't come?</strong> Message the LINE group or Asuka right away.</li>" +
+      '<li><strong>Stepping away from your booth?</strong> Tell your booth partner first.</li>' +
+      '<li><strong>Photos:</strong> Megumi or Aoi approves every Instagram post. Ask before photographing visitors, especially children.</li>' +
+      '<li><strong>Rain:</strong> any change of plan will be posted on LINE.</li></ul></div></section>';
+    renderBar();
+  }
+
+  function renderBar() {
+    if (!ui.edit) { bar.hidden = true; bar.className = ''; bar.innerHTML = ''; }
+    else {
+      var text = ui.sel
+        ? 'Moving ' + esc(ui.sel.name) + '. Tap a cell to move there, another name to swap, or Off duty to take them off.'
+        : (dirty() ? 'Unsaved changes. Tap a name to pick it up.' : 'Tap a name to pick it up, then tap where it goes.');
+      var btns = '';
+      if (ui.sel) btns += '<button type="button" class="btn quiet" data-act="remove">Remove from this day</button>';
+      if (dirty()) {
+        btns += '<button type="button" class="btn quiet" data-act="discard"' + (ui.saving ? ' disabled' : '') + '>Discard</button>' +
+          '<button type="button" class="btn gold" data-act="save"' + (ui.saving ? ' disabled' : '') + '>' + (ui.saving ? 'Saving…' : 'Save for everyone') + '</button>';
+      } else {
+        btns += '<button type="button" class="btn gold" data-act="done">Done</button>';
+      }
+      bar.hidden = false;
+      bar.className = 'bar';
+      bar.innerHTML = '<p>' + text + '</p><div class="bar-btns">' + btns + '</div>';
+    }
+    toast.hidden = !ui.msg;
+    toast.className = ui.msg ? 'toast' : '';
+    toast.setAttribute('role', 'status');
+    toast.textContent = ui.msg;
+    if (ui.msg) {
+      var shown = ui.msg;
+      setTimeout(function () { if (ui.msg === shown) { ui.msg = ''; renderBar(); } }, 6000);
+    }
+  }
+
+  function removeFromSlot(d, s, name) {
+    d.grid.forEach(function (row) {
+      var i = row[s].indexOf(name);
+      if (i >= 0) row[s].splice(i, 1);
+    });
+  }
+  function place(d, s, b, name) {
+    removeFromSlot(d, s, name);
+    if (b >= 0) d.grid[b][s].push(name);
+  }
+  function moveTo(s, b) {
+    var d = dayOf(ui.sel.day), n = ui.sel.name;
+    if (ui.sel.booth >= 0) removeFromSlot(d, ui.sel.slot, n);
+    place(d, s, b, n);
+    ui.sel = null;
+    render();
+  }
+  function swapWith(t) {
+    var a = ui.sel, d = dayOf(a.day);
+    if (a.name === t.name) { moveTo(t.slot, t.booth); return; }
+    if (a.booth >= 0) removeFromSlot(d, a.slot, a.name);
+    if (t.booth >= 0) removeFromSlot(d, t.slot, t.name);
+    if (t.booth >= 0) place(d, t.slot, t.booth, a.name);
+    if (a.booth >= 0) place(d, a.slot, a.booth, t.name);
+    ui.sel = null;
+    render();
+  }
+  function setWho(name) {
+    ui.who = name;
+    try { localStorage.setItem('foj-who', name); } catch (e) {}
+    render();
+  }
+
+  function pageDocument() {
+    var css = document.getElementById('css').textContent;
+    var js = document.getElementById('appjs').textContent;
+    var json = JSON.stringify(state).replace(/</g, '\\u003c');
+    return SKELETON + '\n<title>FOJ Festival Game Plan</title>\n' + FONT_LINK + '\n<style id="css">' + css + '</style>\n' +
+      '<main class="wrap" id="app"></main>\n<script type="application/json" id="state">' + json + '<\/script>\n' +
+      '<script id="appjs">' + js + '<\/script>\n</body></html>';
+  }
+
+  function save() {
+    if (!artifactNs) {
+      ui.msg = 'Saving is not available in this view.';
+      renderBar();
+      return;
+    }
+    ui.saving = true;
+    renderBar();
+    try { sessionStorage.setItem('foj-saved', '1'); } catch (e) {}
+    artifactNs.publish(pageDocument()).catch(function (err) {
+      try { sessionStorage.removeItem('foj-saved'); } catch (e) {}
+      var code = err && err.code;
+      ui.saving = false;
+      if (code === 'conflict') ui.msg = 'Someone else saved first. Loading their version.';
+      else if (READ_ONLY.indexOf(code) >= 0) {
+        ui.can = false; ui.edit = false; ui.sel = null;
+        ui.msg = 'This view is read-only, so your changes were not saved.';
+      }
+      else if (code === 'rate_limited') ui.msg = 'Saving too often. Wait a minute, then save again.';
+      else ui.msg = 'Could not save. Check your connection, then save again.';
+      render();
+    });
+  }
+
+  function act(name) {
+    if (name === 'edit') { ui.edit = true; ui.sel = null; render(); }
+    else if (name === 'done') { ui.edit = false; ui.sel = null; render(); }
+    else if (name === 'discard') { state = JSON.parse(saved); ui.sel = null; render(); }
+    else if (name === 'save') { save(); }
+    else if (name === 'remove' && ui.sel) {
+      var d = dayOf(ui.sel.day), n = ui.sel.name;
+      d.dancers = d.dancers.filter(function (x) { return x !== n; });
+      d.crew = d.crew.filter(function (x) { return x !== n; });
+      d.grid.forEach(function (row) { row.forEach(function (cell, s) { row[s] = cell.filter(function (x) { return x !== n; }); }); });
+      ui.sel = null;
+      render();
+    }
+  }
+
+  app.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-act]');
+    if (btn) { act(btn.getAttribute('data-act')); return; }
+    var c = e.target.closest('button.chip');
+    if (c) {
+      var t = { day: c.getAttribute('data-day'), slot: +c.getAttribute('data-slot'), booth: +c.getAttribute('data-booth'), name: c.getAttribute('data-name') };
+      if (!ui.edit) { setWho(ui.who === t.name ? '' : t.name); return; }
+      if (ui.saving || t.booth === -2) return;
+      var a = ui.sel;
+      if (!a || a.day !== t.day) { ui.sel = t; render(); }
+      else if (a.slot === t.slot && a.booth === t.booth && a.name === t.name) { ui.sel = null; render(); }
+      else swapWith(t);
+      return;
+    }
+    if (ui.edit && ui.sel && !ui.saving) {
+      var td = e.target.closest('td[data-slot]');
+      if (td && td.getAttribute('data-day') === ui.sel.day) moveTo(+td.getAttribute('data-slot'), +td.getAttribute('data-booth'));
+    }
+  });
+  app.addEventListener('change', function (e) {
+    if (e.target.id === 'who') setWho(e.target.value);
+  });
+  app.addEventListener('submit', function (e) {
+    var form = e.target.closest('form.add');
+    if (!form) return;
+    e.preventDefault();
+    var d = dayOf(form.getAttribute('data-day'));
+    var name = document.getElementById('add-' + d.key).value.replace(/\s+/g, ' ').trim();
+    var role = document.getElementById('role-' + d.key).value === 'dancers' ? 'dancers' : 'crew';
+    if (!name) return;
+    if (people(d).indexOf(name) >= 0) { ui.msg = name + ' is already on this day.'; renderBar(); return; }
+    d[role].push(name);
+    render();
+  });
+  bar.addEventListener('click', function (e) {
+    var btn = e.target.closest('[data-act]');
+    if (btn && !btn.disabled) act(btn.getAttribute('data-act'));
+  });
+
+  render();
+
+})();
+</script>
+
+</body></html>
